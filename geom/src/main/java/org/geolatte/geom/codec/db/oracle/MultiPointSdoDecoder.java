@@ -18,6 +18,7 @@ public class MultiPointSdoDecoder extends AbstractSDODecoder {
     Geometry<?> internalDecode(SDOGeometry sdoGeom) {
         CoordinateReferenceSystem<?> crs = getCoordinateReferenceSystem(sdoGeom);
         final Double[] ordinates = sdoGeom.getOrdinates().getOrdinateArray();
+        SDOGeometry[] elementGeometries = sdoGeom.getElementGeometries();
         PositionSequence<? extends Position> positions = convertOrdinateArray(ordinates, sdoGeom, crs);
         Point[] pnts = new Point[positions.size()];
         int i = 0;

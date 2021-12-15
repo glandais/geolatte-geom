@@ -33,24 +33,22 @@ enum ElementType {
     LINE_STRAITH_SEGMENTS(2, 1),
     LINE_ARC_SEGMENTS(2, 2),
     INTERIOR_RING_STRAIGHT_SEGMENTS(2003, 1),
+    EXTERIOR_RING_STRAIGHT_SEGMENTS(1003, 1),
+    EXTERIOR_RING_ARC_SEGMENTS(1003, 2),
+    INTERIOR_RING_ARC_SEGMENTS(2003, 2),
+    INTERIOR_RING_RECT(2003, 3),
+    EXTERIOR_RING_RECT(1003, 3),
+    EXTERIOR_RING_CIRCLE(1003, 4),
+    INTERIOR_RING_CIRCLE(2003, 4),
+    COMPOUND_LINESTRING(4, true),
+    COMPOUND_EXTERIOR_RING(1005, true),
+    COMPOUND_INTERIOR_RING(2005, true),
+
     /**
      * Some sort of old geometry.
      */
     PLAIN_OLD_EXTERIOR_RING_STRAIGHT_SEGMENTS(3, 1),
-    PLAIN_OLD_COMPOUND_EXTERIOR_RING(5, true),
-    /**
-     * Straight segments.
-     */
-    EXTERIOR_RING_STRAIGHT_SEGMENTS(1003, 1),
-    INTERIOR_RING_ARC_SEGMENTS(2003, 2),
-    EXTERIOR_RING_ARC_SEGMENTS(1003, 2),
-    INTERIOR_RING_RECT(2003, 3),
-    EXTERIOR_RING_RECT(1003, 3),
-    INTERIOR_RING_CIRCLE(2003, 4),
-    EXTERIOR_RING_CIRCLE(1003, 4),
-    COMPOUND_LINE(4, true),
-    COMPOUND_EXTERIOR_RING(1005, true),
-    COMPOUND_INTERIOR_RING(2005, true);
+    PLAIN_OLD_COMPOUND_EXTERIOR_RING(5, true);
 
     private final int etype;
 
@@ -116,11 +114,12 @@ enum ElementType {
     public static ElementType parseType(int etype, int interpretation) {
         for (ElementType t : values()) {
             if (t.etype == etype) {
-                if (t.isCompound() || t.getInterpretation() == interpretation) {
+                if (t.isCompound() || t.getInterpretation() == interpretation || t.etype == 1) {
                     return t;
                 }
             }
         }
+
         throw new RuntimeException("Can't determine ElementType from etype:" + etype + " and interp.:" + interpretation);
     }
 

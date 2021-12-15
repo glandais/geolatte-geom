@@ -21,6 +21,9 @@
 
 package org.geolatte.geom.codec.db.oracle;
 
+import org.geolatte.geom.Geometry;
+import org.geolatte.geom.GeometryType;
+import org.geolatte.geom.Position;
 import org.geolatte.geom.codec.db.Decoder;
 
 /**
@@ -29,71 +32,74 @@ import org.geolatte.geom.codec.db.Decoder;
  */
 enum TypeGeometry {
 
-    UNKNOWN_GEOMETRY(0) {
+    UNKNOWN_GEOMETRY(0, null) {
         @Override
-        Decoder createDecoder() {
+        Decoder<SDOGeometry> createDecoder() {
             throw new UnsupportedOperationException();
         }
     },
-    POINT(1) {
+    POINT(1, GeometryType.POINT) {
         @Override
-        Decoder createDecoder() {
+        Decoder<SDOGeometry> createDecoder() {
             return new PointSdoDecoder();
         }
     },
-    LINE(2) {
+    LINE(2, GeometryType.LINESTRING) {
         @Override
-        Decoder createDecoder() {
+        Decoder<SDOGeometry> createDecoder() {
             return new LineStringSdoDecoder();
         }
     },
-    POLYGON(3) {
+    POLYGON(3, GeometryType.POLYGON) {
         @Override
-        Decoder createDecoder() {
+        Decoder<SDOGeometry> createDecoder() {
             return new PolygonSdoDecoder();
         }
     },
-    COLLECTION(4) {
+    COLLECTION(4, GeometryType.GEOMETRYCOLLECTION) {
         @Override
-        Decoder createDecoder() {
+        Decoder<SDOGeometry> createDecoder() {
             return new GeometryCollectionSdoDecoder();
         }
     },
-    MULTIPOINT(5) {
+    MULTIPOINT(5, GeometryType.MULTIPOINT) {
         @Override
-        Decoder createDecoder() {
+        Decoder<SDOGeometry> createDecoder() {
             return new MultiPointSdoDecoder();
         }
     },
-    MULTILINE(6) {
+    MULTILINE(6, GeometryType.MULTILINESTRING) {
         @Override
-        Decoder createDecoder() {
+        Decoder<SDOGeometry> createDecoder() {
             return new MultiLineSdoDecoder();
         }
     },
-    MULTIPOLYGON(7) {
+    MULTIPOLYGON(7, GeometryType.MULTIPOLYGON) {
         @Override
-        Decoder createDecoder() {
+        Decoder<SDOGeometry> createDecoder() {
             return new MultiPolygonSdoDecoder();
         }
     },
-    SOLID(8) {
+    SOLID(8, null) {
         @Override
-        Decoder createDecoder() {
+        Decoder<SDOGeometry> createDecoder() {
             throw new UnsupportedOperationException();
         }
     },
-    MULTISOLID(9) {
+    MULTISOLID(9, null) {
         @Override
-        Decoder createDecoder() {
+        Decoder<SDOGeometry> createDecoder() {
             throw new UnsupportedOperationException();
         }
     };
 
     private final int gtype;
+    private final GeometryType matchingGeometryType;
 
-    TypeGeometry(int gtype) {
+    TypeGeometry(int gtype, GeometryType geometryType) {
+
         this.gtype = gtype;
+        this.matchingGeometryType = geometryType;
     }
 
     int intValue() {
@@ -112,5 +118,26 @@ enum TypeGeometry {
         );
     }
 
-    abstract Decoder createDecoder();
+    static <P extends Position> TypeGeometry forGeometry(Geometry<P> geom){
+        if (geom == null) {
+            return null;
+        }
+        for (TypeGeometry gt: values()) {
+            if (gt.matchingGeometryType != null && gt.matchingGeometryType.equals(geom.getGeometryType())) {
+                return gt;
+            }
+        }
+        return null;
+    }
+
+    abstract Decoder<SDOGeometry> createDecoder();
+
+    /**
+     * Returns the corresponding {@code GeometryType}, or null when no such type exists
+     *
+     * @return the corresponding {@code GeometryType}, or null when no such type exists
+     */
+    public GeometryType getMatchingGeometryType() {
+        return matchingGeometryType;
+    }
 }

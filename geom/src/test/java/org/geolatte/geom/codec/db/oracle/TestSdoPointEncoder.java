@@ -45,7 +45,7 @@ public class TestSdoPointEncoder {
     }
 
     @Test
-    public void testPointEncoding3D(){
+    public void testPointEncoding3D() {
         Point<G3D> point = point(wgs84z, g(12, 14, 3));
         System.setProperty(Settings.USE_SDO_POINT, "true");
         SDOGeometry expected = sdoGeometry(3001, 4326, new SDOPoint(12d, 14d, 3d), null, null);
@@ -53,7 +53,7 @@ public class TestSdoPointEncoder {
     }
 
     @Test
-    public void testPointEncoding2D(){
+    public void testPointEncoding2D() {
         Point<G2D> point = point(wgs84, g(12, 14));
         System.setProperty(Settings.USE_SDO_POINT, "true");
         SDOGeometry expected = sdoGeometry(2001, 4326, new SDOPoint(12d, 14d), null, null);
@@ -62,8 +62,8 @@ public class TestSdoPointEncoder {
     }
 
     @Test
-    public void testPointEncoding4DIgnoresUseSDOPointFeature(){
-        Point<G3DM> point = point(wgs84zm, g(12, 14,3d, 6d));
+    public void testPointEncoding4DIgnoresUseSDOPointFeature() {
+        Point<G3DM> point = point(wgs84zm, g(12, 14, 3d, 6d));
         System.setProperty(Settings.USE_SDO_POINT, "true");
         SDOGeometry expected = sdoGeometry(4401, 4326, null, new int[]{1, 1, 1}, new Double[]{12d, 14d, 3d, 6d});
         assertEquals(expected, Encoders.encode(point));
@@ -81,15 +81,26 @@ public class TestSdoPointEncoder {
     }
 
 
-        @Test
-        public void testEmptyPointDecodingUsingSDOPoint() {
-            System.setProperty(Settings.USE_SDO_POINT, "true");
-            Point<G2D> emptyPoint = new Point<G2D>(wgs84);
+    @Test
+    public void testEmptyPointDecodingUsingSDOPoint() {
+        System.setProperty(Settings.USE_SDO_POINT, "true");
+        Point<G2D> emptyPoint = new Point<G2D>(wgs84);
 
-            assertTrue(emptyPoint.isEmpty());
-            SDOGeometry sdoGeometry = Encoders.encode(emptyPoint);
-            Geometry<?> geom = Decoders.decode(sdoGeometry);
-            assert (geom.isEmpty());
-            System.setProperty(Settings.USE_SDO_POINT, "false");
-        }
+        assertTrue(emptyPoint.isEmpty());
+        SDOGeometry sdoGeometry = Encoders.encode(emptyPoint);
+        Geometry<?> geom = Decoders.decode(sdoGeometry);
+        assert (geom.isEmpty());
+        System.setProperty(Settings.USE_SDO_POINT, "false");
+    }
+
+    @Test
+    public void testMultiPointWithEmptyPointDecoding() {
+        Point<G2D> emptyPoint = new Point<G2D>(wgs84);
+        Point<G2D> anotherPoint = point(wgs84, g(1, 2));
+        MultiPoint<G2D> multiPoint = multipoint(emptyPoint, anotherPoint);
+        SDOGeometry sdoGeometry = Encoders.encode(multiPoint);
+        Geometry<?> geom = Decoders.decode(sdoGeometry);
+        assertEquals(multiPoint, geom);
+    }
+
 }

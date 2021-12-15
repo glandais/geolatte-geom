@@ -21,6 +21,9 @@
 
 package org.geolatte.geom.codec.db.oracle;
 
+import org.geolatte.geom.Geometry;
+import org.geolatte.geom.Position;
+
 /**
  * @author Karel Maesen, Geovise BVBA
  * creation-date: Jun 30, 2010
@@ -32,6 +35,15 @@ class SDOGType {
     private int lrsDimension;
 
     private TypeGeometry typeGeometry = TypeGeometry.UNKNOWN_GEOMETRY;
+
+    static <P extends Position> SDOGType gtypeFor(Geometry<P> geometry) {
+        TypeGeometry typeGeometry = TypeGeometry.forGeometry(geometry);
+        if (typeGeometry == null) {
+            throw new IllegalStateException("Can't determine TypeGeometry for geometries of type " + geometry.getGeometryType());
+        }
+        int lrsDimension = geometry.hasM() ? geometry.getCoordinateDimension() : 0;
+        return new SDOGType(geometry.getCoordinateDimension(), lrsDimension, typeGeometry);
+    }
 
     static SDOGType derive(ElementType elementType, SDOGeometry origGeom) {
         switch (elementType) {
@@ -48,7 +60,7 @@ class SDOGType {
                 );
             case LINE_ARC_SEGMENTS:
             case LINE_STRAITH_SEGMENTS:
-            case COMPOUND_LINE:
+            case COMPOUND_LINESTRING:
                 return new SDOGType(
                         origGeom.getDimension(), origGeom
                         .getLRSDimension(), TypeGeometry.LINE
@@ -100,7 +112,9 @@ class SDOGType {
     public int getLRSDimension() {
         if (this.lrsDimension > 0) {
             return this.lrsDimension;
-        } else if (this.lrsDimension == 0 && this.dimension == 4) {
+        }
+        //TODO -- why would this be necessary?
+        else if (this.lrsDimension == 0 && this.dimension == 4) {
             return 4;
         }
         return 0;

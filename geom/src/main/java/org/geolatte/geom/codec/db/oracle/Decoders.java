@@ -10,7 +10,7 @@ import java.sql.Struct;
  */
 public class Decoders {
 
-    public static Decoder decoderFor(SDOGeometry object) {
+    public static Decoder<SDOGeometry> decoderFor(SDOGeometry object) {
         return object.getGType().getTypeGeometry().createDecoder();
     }
 

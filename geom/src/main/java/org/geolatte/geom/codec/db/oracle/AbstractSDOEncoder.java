@@ -14,6 +14,15 @@ import static org.geolatte.geom.PositionSequenceBuilders.fixedSized;
 abstract public class AbstractSDOEncoder implements Encoder<SDOGeometry> {
 
 
+    /**
+     * Returns the dimension for the Measured coordinate
+     * @param geom  geometry to inspect
+     * @param <P> Position type of the geometry
+     * @return the dimension for the Measured coordinate
+     * @deprecated  Use SDOGtype.gtypeFor(Geometry)
+     *
+     */
+    @Deprecated
     protected <P extends Position> int getLRSDim(Geometry<P> geom) {
         if (Measured.class.isAssignableFrom(geom.getPositionClass())) {
             if (geom.getCoordinateDimension() == 3) {

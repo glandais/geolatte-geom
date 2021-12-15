@@ -36,6 +36,9 @@ public class SdoMultiPointEncoder extends AbstractSDOEncoder {
     }
 
     private Double[] pointToOrdinates(MultiPoint<?> multiPoint, int i) {
+        if (multiPoint.getGeometryN(i).isEmpty()) {
+            return new Double[]{};
+        }
         Double[] pointOrdinates = new Double[multiPoint.getCoordinateDimension()];
         int idx = 0;
         for (double d : multiPoint.getGeometryN(i).getPosition().toArray(null)) {
